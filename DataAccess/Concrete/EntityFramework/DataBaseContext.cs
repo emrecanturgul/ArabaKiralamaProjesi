@@ -17,7 +17,7 @@ namespace DataAccess.Concrete.EntityFramework
         } 
         public DbSet<Car> Cars { get; set; } 
         public DbSet<Color> Colors { get; set; }    
-        public DbSet<Brand> Brands { get; set; }  
+        public DbSet<Brand> Brands1 { get; set; }  
 
         //Car , Color , Brand nesneleri için ef altyapısı yazacağız 
 

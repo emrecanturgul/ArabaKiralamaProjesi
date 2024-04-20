@@ -1,11 +1,15 @@
 ﻿using DataAccess.Abstract;
 using Entities.Concrete;
+using Entities.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Metadata;
+using System.Runtime.ConstrainedExecution;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks; 
 
@@ -14,12 +18,20 @@ namespace DataAccess.Concrete.EntityFramework
     public class EfCarDal : ICarDal
     {
         public void Add(Car entity)
-        {
+        {   
             using (DataBaseContext context = new DataBaseContext())
             {
-                var addedEntity = context.Entry(entity); 
-                addedEntity.State = EntityState.Added;
-                context.SaveChanges(); 
+                bool flagId = context.Cars.Any(c => c.Id == entity.Id);
+                if(flagId == false ) {
+                    var addedEntity = context.Entry(entity);
+                    addedEntity.State = EntityState.Added;
+                    context.SaveChanges();
+                    Console.WriteLine("araç eklendi yeni id" + entity.Id);
+                } 
+                else
+                {
+                    Console.WriteLine("hatalı Id girişi");
+                }
                  
             }
         }
@@ -69,6 +81,26 @@ namespace DataAccess.Concrete.EntityFramework
             }
         }
 
+        public List<CarDetailDTO> GetCarDetails()
+        {
+            using (DataBaseContext context = new DataBaseContext())
+            {
+                var result = from c in context.Cars
+                             join b in context.Brands1 on c.BrandId equals b.BrandId
+                             join co in context.Colors on c.ColorId equals co.ColorID
+                             select new CarDetailDTO
+                             {
+                                 CarDescription = c.Description,
+                                 BrandName = b.BrandName,
+                                 ColorName = co.ColorName,
+                                 DailyPrice = c.DailyPrice
+                             };
+                return result.ToList();
+
+
+            }
+        } 
+
         public void Update(Car entity)
         {
             using (DataBaseContext context = new DataBaseContext())
@@ -78,6 +110,7 @@ namespace DataAccess.Concrete.EntityFramework
                 context.SaveChanges(); 
             }
         }
+      
     }
 }
  
